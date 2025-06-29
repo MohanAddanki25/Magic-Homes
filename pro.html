@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Properties | Magic Homes</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" crossorigin="anonymous" />
+    <style>
+        :root {
+            --primary: #002366; /* navy blue */
+            --secondary: #ffffff; /* white */
+            --accent: #00a8e8;
+            --text: #333333;
+            --light-gray: #f5f5f5;
+            --dark-gray: #222222;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--secondary);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--dark-gray));
+            color: var(--secondary);
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxkZWZzPjxwYXR0ZXJuIGlkPSJwYXR0ZXJuIiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHBhdHRlcm5UcmFuc2Zvcm09InJvdGF0ZSg0NSkiPjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXR0ZXJuKSIvPjwvc3ZnPg==');
+            opacity: 0.3;
+            z-index: 1;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-icon {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 0;
+            position: relative;
+        }
+
+        .nav-links a.active {
+            color: var(--accent);
+        }
+
+        .nav-links a:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            bottom: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover:after {
+            width: 100%;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 3rem 0;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            animation: fadeInUp 1s ease 0.2s forwards;
+            opacity: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .section-title h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            display: inline-block;
+            padding-bottom: 0.5rem;
+        }
+
+        .section-title h2:after {
+            content: '';
+            position: absolute;
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .property-card {
+            background-color: var(--secondary);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .property-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .property-image {
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .property-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .property-card:hover .property-image img {
+            transform: scale(1.1);
+        }
+
+        .property-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--accent);
+            color: var(--secondary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .property-content {
+            padding: 1.5rem;
+        }
+
+        .property-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .property-price span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--text);
+            opacity: 0.8;
+        }
+
+        .property-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark-gray);
+        }
+
+        .property-location {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .property-location i {
+            margin-right: 0.5rem;
+            color: var(--accent);
+        }
+
+        .property-features {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #eee;
+            padding-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+        }
+
+        .feature i {
+            margin-right: 0.3rem;
+            color: var(--accent);
+        }
+
+        .view-button {
+            display: inline-block;
+            background-color: var(--primary);
+            color: var(--secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        .view-button:hover {
+            background-color: #001a4d;
+        }
+
+        .location-filter {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .location-button {
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            background-color: var(--light-gray);
+            color: var(--text);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .location-button:hover, .location-button.active {
+            background-color: var(--primary);
+            color: var(--secondary);
+        }
+
+        footer {
+            background-color: var(--dark-gray);
+            color: var(--secondary);
+            padding: 4rem 0 2rem;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .footer-column h3:after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 2px;
+            background: var(--accent);
+            bottom: 0;
+            left: 0;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: #bbb;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+            padding-left: 5px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: var(--secondary);
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background-color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #bbb;
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading animation */
+        .loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader-content {
+            text-align: center;
+            color: white;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--secondary);
+            border-radius: 10px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .modal-button {
+            flex: 1;
+            padding: 0.8rem;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .details-button {
+            background-color: var(--primary);
+            color: var(--secondary);
+        }
+
+        .details-button:hover {
+            background-color: #001a4d;
+        }
+
+        .map-button {
+            background-color: var(--accent);
+            color: var(--secondary);
+        }
+
+        .map-button:hover {
+            background-color: #0095d6;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader">
+        <div class="loader-content">
+            <div class="spinner"></div>
+            <p>Loading properties...</p>
+        </div>
+    </div>
+
+    <header>
+        <div class="header-bg"></div>
+        <div class="header-content">
+            <nav>
+                <div class="logo">
+                    <span class="logo-icon">🏠</span>
+                    <span>MagicHomes</span>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="pro.html" class="active">Properties</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="hero">
+                <h1>Find Your Affordable Home</h1>
+                <p>Browse our extensive listings of affordable housing options across NTR District.</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="location-filter">
+            <button class="location-button active" data-location="all">All Areas</button>
+            <button class="location-button" data-location="Vijayawada">Vijayawada</button>
+            <button class="location-button" data-location="Mylavaram">Mylavaram</button>
+            <button class="location-button" data-location="NTR District">NTR District</button>
+            <button class="location-button" data-location="Other">Other Areas</button>
+        </div>
+
+        <div class="properties-grid" id="propertiesGrid">
+            <!-- Properties will be loaded here via JavaScript -->
+        </div>
+    </div>
+
+    <footer id="contact">
+        <div class="footer-container">
+            <div class="footer-column">
+                <h3>Magic Homes</h3>
+                <p>Providing affordable housing solutions in NTR District to combat homelessness and strengthen our community.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h3>Quick Links</h3>
+                <ul class="footer-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="pro.html">Properties</a></li>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="#">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Locations</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Vijayawada</a></li>
+                    <li><a href="#">Mylavaram</a></li>
+                    <li><a href="#">NTR District</a></li>
+                    <li><a href="#">Surrounding Areas</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Contact Us</h3>
+                <ul class="footer-links">
+                    <li><i class="fas fa-map-marker-alt"></i> Magic Homes</li>
+                    <li><i class="fas fa-phone"></i> +91 123 456 7890</li>
+                    <li><i class="fas fa-envelope"></i> info@andhrahomes.org</li>
+                    <li><i class="fas fa-clock"></i> Mon-Fri: 9AM - 5PM</li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>© 2025 Magic Homes. All rights reserved. | <a href="#" style="color: var(--accent);">Privacy Policy</a> | <a href="#" style="color: var(--accent);">Terms of Service</a></p>
+        </div>
+    </footer>
+
+    <!-- Modal for View Details -->
+    <div id="propertyModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">×</span>
+            <h3 id="modalTitle"></h3>
+            <p><strong>Location:</strong> <span id="modalLocation"></span></p>
+            <p><strong>Price:</strong> ₹<span id="modalPrice"></span>/month</p>
+            <p><strong>Type:</strong> <span id="modalType"></span></p>
+            <p><strong>Bedrooms:</strong> <span id="modalBedrooms"></span></p>
+            <p><strong>Description:</strong> <span id="modalDescription"></span></p>
+            <div class="modal-buttons">
+                <a href="#" id="moreDetailsButton" class="modal-button details-button">More Details</a>
+                <a href="#" id="viewOnMapButton" class="modal-button map-button">View on Map</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // Property data
+        const properties = [
+            {
+                id: 1,
+                title: "Aalayam Apartments",
+                location: "Vijayawada",
+                price: 8000,
+                type: "Apartment",
+                bedrooms: 2,
+                image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.515034334280568,
+                lng: 80.6586009497469,
+                description: "Spacious 2 bedroom apartment in Venkateswara Nagar, close to amenities and schools."
+            },
+            {
+                id: 2,
+                title: "PRAGATHI NILAYA APARTMENTS",
+                location: "Vijayawada",
+                price: 7500,
+                type: "Apartment",
+                bedrooms: 2,
+                image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.521191402319957,
+                lng: 80.6678696597116,
+                description: "Modern 2 bedroom apartment in NTR Colony, ideal for small families."
+            },
+            {
+                id: 3,
+                title: "Rivershine Apartments",
+                location: "Vijayawada",
+                price: 9000,
+                type: "Apartment",
+                bedrooms: 2,
+                image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.524844742821927,
+                lng: 80.59385395397231,
+                description: "Comfortable 2 bedroom apartment in Bhavanipuram, near Karakatta South."
+            },
+            {
+                id: 4,
+                title: "Brundhavanam Apartments",
+                location: "Vijayawada",
+                price: 9000,
+                type: "Apartment",
+                bedrooms: 3,
+                image: "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.541526344128602,
+                lng: 80.59893993121838,
+                description: "Spacious 3 bedroom apartment on Vijayawada Bypass Rd, perfect for families."
+            },
+            {
+                id: 5,
+                title: "GOPI RENT HOUSE",
+                location: "Vijayawada",
+                price: 6000,
+                type: "Studio",
+                bedrooms: 1,
+                image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.52667940714756,
+                lng: 80.59880273862812,
+                description: "Cozy studio apartment in Bhavanipuram, ideal for singles or students."
+            },
+            {
+                id: 6,
+                title: "Trendset Residency",
+                location: "Vijayawada",
+                price: 7000,
+                type: "Apartment",
+                bedrooms: 2,
+                image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.497749843661463,
+                lng: 80.65201651847875,
+                description: "Well-located 2 bedroom apartment near Benz Circle, with easy access to Patamatalanka."
+            },
+            {
+                id: 7,
+                title: "KayPee Apartments",
+                location: "Vijayawada",
+                price: 6500,
+                type: "Apartment",
+                bedrooms: 2,
+                image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.508612757600897,
+                lng: 80.65390479362573,
+                description: "Comfortable 2 bedroom apartment in Siddhartha Nagar, near Benz Circle."
+            },
+            {
+                id: 8,
+                title: "Vellampalli's BOMMARILLU",
+                location: "Vijayawada",
+                price: 6500,
+                type: "Apartment",
+                bedrooms: 2,
+                image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.533949103924833,
+                lng: 80.59227827560201,
+                description: "Modern 2 bedroom apartment near Swathi Theatre Rd, Bhavanipuram."
+            },
+            {
+                id: 9,
+                title: "Swathi Apartment",
+                location: "Vijayawada",
+                price: 7000,
+                type: "Apartment",
+                bedrooms: 2,
+                image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.511567185032984,
+                lng: 80.6626594401717,
+                description: "Cozy 2 bedroom apartment on Loyola College Rd, Veterinary Colony."
+            },
+            {
+                id: 10,
+                title: "Narasimha",
+                location: "Mylavaram",
+                price: 5000,
+                type: "Apartment",
+                bedrooms: 2,
+                image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.755509271403504,
+                lng: 80.6414290463232,
+                description: "Spacious 2 bedroom apartment in Mylavaram, ideal for small families."
+            },
+            {
+                id: 11,
+                title: "Satyarama Nilayam",
+                location: "Mylavaram",
+                price: 5000,
+                type: "Apartment",
+                bedrooms: 2,
+                image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.755672038106773,
+                lng: 80.63742552915832,
+                description: "Modern 2 bedroom apartment building in Mylavaram, close to local amenities."
+            },
+            {
+                id: 12,
+                title: "SVS MANOER",
+                location: "Mylavaram",
+                price: 5500,
+                type: "Apartment",
+                bedrooms: 2,
+                image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.76025792772746,
+                lng: 80.64215971589753,
+                description: "Comfortable 2 bedroom apartment in Mylavaram, suitable for families."
+            },
+            {
+                id: 13,
+                title: "SRI NIVASAM",
+                location: "Mylavaram",
+                price: 5700,
+                type: "Apartment",
+                bedrooms: 2,
+                image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.76380116613582,
+                lng: 80.63629950702685,
+                description: "Well-maintained 2 bedroom apartment in Mylavaram, near local markets."
+            },
+            {
+                id: 14,
+                title: "Affordable 2BHK Apartment",
+                location: "Vijayawada",
+                price: 5500,
+                type: "Apartment",
+                bedrooms: 2,
+                image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.5162,
+                lng: 80.6380,
+                description: "Spacious 2 bedroom apartment in a quiet neighborhood with good schools nearby."
+            },
+            {
+                id: 15,
+                title: "Budget Studio",
+                location: "Vijayawada",
+                price: 5000,
+                type: "Studio",
+                bedrooms: 1,
+                image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.5262,
+                lng: 80.6280,
+                description: "Compact studio apartment with all basic amenities included."
+            },
+            {
+                id: 16,
+                title: "Cozy 1BHK Flat",
+                location: "Vijayawada",
+                price: 7000,
+                type: "Apartment",
+                bedrooms: 1,
+                image: "https://images.unsplash.com/photo-1484154218962-a197022b5858?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.5062,
+                lng: 80.6380,
+                description: "Well-maintained 1 bedroom flat near public transportation."
+            },
+            {
+                id: 17,
+                title: "Modern 3BHK Flat",
+                location: "Vijayawada",
+                price: 15000,
+                type: "Apartment",
+                bedrooms: 3,
+                image: "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.5362,
+                lng: 80.6180,
+                description: "Modern apartment with 3 bedrooms and contemporary amenities."
+            },
+            {
+                id: 18,
+                title: "Modest Family Home",
+                location: "Mylavaram",
+                price: 5000,
+                type: "House",
+                bedrooms: 3,
+                image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.749516,
+                lng: 80.633541,
+                description: "3 bedroom house with small garden, perfect for families."
+            },
+            {
+                id: 19,
+                title: "Family Duplex",
+                location: "Mylavaram",
+                price: 5000,
+                type: "House",
+                bedrooms: 3,
+                image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.759516,
+                lng: 80.643541,
+                description: "Spacious duplex with yard, ideal for larger families."
+            },
+            {
+                id: 20,
+                title: "Village Home",
+                location: "Mylavaram",
+                price: 5000,
+                type: "House",
+                bedrooms: 2,
+                image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.739516,
+                lng: 80.623541,
+                description: "Traditional 2 bedroom home in peaceful village setting."
+            },
+            {
+                id: 21,
+                title: "Shared Apartment Room",
+                location: "NTR District",
+                price: 4000,
+                type: "Shared",
+                bedrooms: 1,
+                image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.4862,
+                lng: 80.6480,
+                description: "Private room in shared apartment with communal kitchen and living area."
+            },
+            {
+                id: 22,
+                title: "Suburban 2BHK",
+                location: "NTR District",
+                price: 5000,
+                type: "Apartment",
+                bedrooms: 2,
+                image: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.4962,
+                lng: 80.6580,
+                description: "Comfortable 2 bedroom apartment in suburban area."
+            },
+            {
+                id: 23,
+                title: "Townhouse Unit",
+                location: "NTR District",
+                price: 5000,
+                type: "House",
+                bedrooms: 2,
+                image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.4762,
+                lng: 80.6380,
+                description: "Cozy townhouse unit with 2 bedrooms and shared courtyard."
+            },
+            {
+                id: 24,
+                title: "Rural Cottage",
+                location: "Other",
+                price: 6000,
+                type: "House",
+                bedrooms: 2,
+                image: "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.4562,
+                lng: 80.6280,
+                description: "Charming 2 bedroom cottage in rural setting."
+            },
+            {
+                id: 25,
+                title: "Farmhouse Room",
+                location: "Other",
+                price: 3500,
+                type: "Shared",
+                bedrooms: 1,
+                image: "https://images.unsplash.com/photo-1600566752355-35792bedcfea?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+                lat: 16.4662,
+                lng: 80.6180,
+                description: "Private room in working farmhouse with kitchen privileges."
+            }
+        ];
+
+        // Show loading animation when page is loading
+        document.addEventListener('DOMContentLoaded', function() {
+            const loader = document.querySelector('.loader');
+            loader.style.display = 'flex';
+
+            // Display all properties initially
+            setTimeout(() => {
+                displayProperties(properties);
+                loader.style.display = 'none';
+            }, 1500);
+
+            // Location filter buttons
+            const locationButtons = document.querySelectorAll('.location-button');
+            locationButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    loader.style.display = 'flex';
+                    locationButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    const location = this.getAttribute('data-location');
+
+                    setTimeout(() => {
+                        if (location === 'all') {
+                            displayProperties(properties);
+                        } else {
+                            const filtered = properties.filter(p => p.location === location);
+                            displayProperties(filtered);
+                        }
+                        loader.style.display = 'none';
+                    }, 800);
+                });
+            });
+
+            // Modal functionality
+            const modal = document.getElementById('propertyModal');
+            const closeButton = document.querySelector('.close-button');
+
+            closeButton.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+
+        // Function to display properties in the grid
+        function displayProperties(properties) {
+            const grid = document.getElementById('propertiesGrid');
+            grid.innerHTML = '';
+            
+            if (properties.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 2rem;">No properties available in this area. Please try another location.</p>';
+                return;
+            }
+            
+            properties.forEach(property => {
+                const card = document.createElement('div');
+                card.className = 'property-card';
+                card.innerHTML = `
+                    <div class="property-image">
+                        <img src="${property.image}" alt="${property.title}">
+                        <div class="property-badge">${property.type}</div>
+                    </div>
+                    <div class="property-content">
+                        <div class="property-price">₹${property.price.toLocaleString()}<span>/month</span></div>
+                        <h3 class="property-title">${property.title}</h3>
+                        <div class="property-location">
+                            <i class="fas fa-map-marker-alt"></i> ${property.location}
+                        </div>
+                        <p>${property.description}</p>
+                        <div class="property-features">
+                            <div class="feature">
+                                <i class="fas fa-bed"></i> ${property.bedrooms} Bed
+                            </div>
+                            <div class="feature">
+                                <i class="fas fa-home"></i> ${property.type}
+                            </div>
+                        </div>
+                        <a href="#" class="view-button" onclick="viewPropertyDetails(${property.id}); return false;">View Details</a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Function to view property details
+        function viewPropertyDetails(id) {
+            const property = properties.find(p => p.id === id);
+            if (!property) return;
+
+            // Populate modal
+            const modal = document.getElementById('propertyModal');
+            document.getElementById('modalTitle').textContent = property.title;
+            document.getElementById('modalLocation').textContent = property.location;
+            document.getElementById('modalPrice').textContent = property.price.toLocaleString();
+            document.getElementById('modalType').textContent = property.type;
+            document.getElementById('modalBedrooms').textContent = property.bedrooms;
+            document.getElementById('modalDescription').textContent = property.description;
+
+            // Set up More Details button
+            const detailsButton = document.getElementById('moreDetailsButton');
+            detailsButton.href = `property-details.html?id=${id}`; // Assuming a details page exists
+            detailsButton.onclick = (e) => {
+                e.preventDefault();
+                alert(`More details for ${property.title}\n\nIn a full application, this would redirect to a detailed property page.`);
+                modal.style.display = 'none';
+            };
+
+            // Set up View on Map button
+            const viewOnMapButton = document.getElementById('viewOnMapButton');
+            viewOnMapButton.href = `index.html?property=${id}`;
+            viewOnMapButton.onclick = (e) => {
+                e.preventDefault();
+                modal.style.display = 'none';
+                window.location.href = `index.html?property=${id}`;
+            };
+
+            // Show modal
+            modal.style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
